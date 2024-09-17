@@ -82,10 +82,10 @@ def mainMenu():
         elif escolha == '4':
             # Lógica para deletar dados
             pass
-        elif escolha == '5':
-            imagePath = input("Insira o caminho da imagem: ")
-            analizeImage(imagePath)
-            pass
+        # elif escolha == '5':
+        #     imagePath = input("Insira o caminho da imagem: ")
+        #     analizeImage(imagePath)
+        #     pass
         elif escolha == '6':
             break
         else:
