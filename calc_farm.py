@@ -26,11 +26,13 @@ unidades_medidas = {
     }
 }
 
+
 # Função para listar os insumos específicos de uma cultura com números
 def listar_insumos(cultura):
     print(f"\nLista de insumos cadastrados para {cultura.capitalize()}:")
     for idx, (insumo, _) in enumerate(insumos_culturas[cultura].items(), start=1):
         print(f"{idx}. {insumo}")
+
 
 # Função para calcular os insumos necessários
 def calcular_insumos(area, cultura, insumos_desejados):
@@ -44,10 +46,11 @@ def calcular_insumos(area, cultura, insumos_desejados):
 
     # Imprimir insumos detalhados
     for tipo, quantidade in insumos_detalhados.items():
-        unidade = unidades_medidas[cultura].get(tipo, 'g/m²')
+        unidade = unidades_medidas[cultura].get(tipo, 'g/m2')
         print(f"Você precisará de {quantidade} {unidade} de {tipo} para a {cultura}.")
 
     return insumos_detalhados
+
 
 # Função para inserir insumos
 def inserir_insumos(cultura):
@@ -58,6 +61,7 @@ def inserir_insumos(cultura):
                          0 < i <= len(insumos_culturas[cultura])]
     print(f"Insumos selecionados: {insumos_desejados}")
     return insumos_desejados
+
 
 # Função para calcular a área e o número de ruas
 def calcular_area(cultura):
@@ -82,25 +86,24 @@ def calcular_area(cultura):
 
     return area, largura, comprimento, ruas
 
+
 # Função para imprimir a tabela
 def imprimir_tabela():
     print("\nTabela de Dados:")
-    print(f"{'Nº':<5}{'Cultura':<10}{'Área (m²)':<15}{'Largura (m)':<15}{'Comprimento (m)':<20}{'Insumos':<30}{'Número de Ruas':<15}")
-    for i, (cultura, area, largura, comprimento, insumo, ruas) in enumerate(
-            zip(culturas_plantadas, areas, larguras, comprimentos, insumos, numero_ruas), start=1):
-        # Imprimir uma linha para cada insumo
-        print(f"{i:<5}{cultura.capitalize():<10}{area:<15.2f}{largura:<15.2f}{comprimento:<20.2f}{'':<30}{ruas:<15}")
-        for tipo, quantidade in insumo.items():
-            unidade = unidades_medidas[cultura].get(tipo, 'g')
-            print(f"{'':<5}{'':<10}{'':<15}{'':<15}{'':<20}{f'{quantidade:.2f} {unidade} de {tipo}':<30}{'':<15}")
+    print(f"{'N°':<5}{'Cultura':<10}{'Área (m2)':<15}{'Largura (m)':<15}{'Comprimento (m)':<20}{'Número de Ruas':<15}")
+    for i, (cultura, area, largura, comprimento, ruas) in enumerate(
+            zip(culturas_plantadas, areas, larguras, comprimentos, numero_ruas), start=1):
+        print(f"{i:<5}{cultura.capitalize():<10}{area:<15.2f}{largura:<15.2f}{comprimento:<20.2f}{ruas:<15}")
+
 
 # Função para adicionar novo insumo
 def adicionar_novo_insumo(cultura):
     insumo = input("Digite o nome do novo insumo: ")
     quantidade = float(
-        input(f"Digite a quantidade de {insumo} (em kg/m² para fertilizante e semente, L/m² para herbicida): "))
+        input(f"Digite a quantidade de {insumo} (em kg/m2 para fertilizante e semente, L/m2 para herbicida): "))
     insumos_culturas[cultura][insumo] = quantidade
     unidades_medidas[cultura][insumo] = input(f"Digite a unidade de medida para {insumo} (kg/L/g): ")
+
 
 # Função de menu para inserir insumos
 def menu_insumos():
@@ -131,6 +134,58 @@ def menu_insumos():
         else:
             print("Opção inválida!")
 
+
+def atualizar_dados(posicao):
+    cultura = culturas_plantadas[posicao]
+    print(f"\nAtualizando dados para a cultura {cultura.capitalize()}:")
+
+    # Opções para atualizar largura e/ou comprimento
+    print("Escolha o que deseja atualizar:")
+    print("1. Largura")
+    print("2. Comprimento")
+    print("3. Largura e Comprimento")
+    escolha = int(input("Digite o número da opção desejada: "))
+
+    if escolha == 1 or escolha == 3:
+        largura = float(input("Digite o novo valor da largura (em m): "))
+        larguras[posicao] = largura
+        # Atualizar número de ruas com base na nova largura
+        numero_ruas[posicao] = calcular_numero_ruas(largura)
+
+    if escolha == 2 or escolha == 3:
+        comprimento = float(input("Digite o novo valor do comprimento (em m): "))
+        comprimentos[posicao] = comprimento
+
+    if escolha == 1 or escolha == 2 or escolha == 3:
+        # Recalcular área com base nos valores atualizados de largura e comprimento
+        area = larguras[posicao] * comprimentos[posicao]
+        areas[posicao] = area
+
+        # Informar ao usuário a nova área de plantio
+        print(f"Sua nova área de plantio é de {area:.2f} m2.")
+
+        # Recalcular insumos com base na nova área
+        insumos_desejados = list(insumos_culturas[cultura].keys())  # Assume todos os insumos
+        insumos_detalhados = calcular_insumos(area, cultura, insumos_desejados)
+        insumos[posicao] = insumos_detalhados
+
+        # Informar ao usuário a quantidade de insumos necessária
+        print("Você precisará dos seguintes insumos:")
+        for tipo, quantidade in insumos_detalhados.items():
+            unidade = unidades_medidas[cultura].get(tipo, 'g/m2')
+            print(f"{quantidade} {unidade} de {tipo}.")
+
+
+# Função para calcular o número de ruas com base na largura do terreno
+def calcular_numero_ruas(largura):
+    largura_ideal = 10  # Largura ideal para cada rua em metros
+    if largura >= 2 * largura_ideal:
+        ruas = int(largura // largura_ideal)
+    else:
+        ruas = 1  # Se não houver largura suficiente para 2 ruas, a rua ocupará toda a largura
+    return ruas
+
+
 # Função de menu principal
 def menu():
     while True:
@@ -160,14 +215,14 @@ def menu():
             area, largura, comprimento, ruas = calcular_area(cultura)
             if area == 0:
                 continue
-            print(f"Você possui uma área de {area:.2f} m² com {ruas} ruas.")
+            print(f"Você possui uma área de {area:.2f} m2 com {ruas} ruas.")
             print(f"Para plantar nessa área, você precisa de:")
 
             insumos_desejados = inserir_insumos(cultura)
             insumos_detalhados = calcular_insumos(area, cultura, insumos_desejados)
 
             for tipo, quantidade in insumos_detalhados.items():
-                unidade = unidades_medidas[cultura].get(tipo, 'g/m²')
+                unidade = unidades_medidas[cultura].get(tipo, 'g/m2')
                 print(f" * {quantidade:.2f} {unidade} de {tipo}")
 
             areas.append(area)
@@ -188,23 +243,7 @@ def menu():
                 imprimir_tabela()
                 posicao = int(input(f"Digite o número da área a ser atualizada (1 a {len(areas)}): ")) - 1
                 if 0 <= posicao < len(areas):
-                    print("Escolha o que deseja atualizar:")
-                    print("1. Área")
-                    print("2. Insumos")
-                    escolha = int(input("Digite o número da escolha: "))
-                    if escolha == 1:
-                        cultura = culturas_plantadas[posicao]
-                        area, largura, comprimento, ruas = calcular_area(cultura)
-                        areas[posicao] = area
-                        larguras[posicao] = largura
-                        comprimentos[posicao] = comprimento
-                        numero_ruas[posicao] = ruas
-                    elif escolha == 2:
-                        insumos_desejados = inserir_insumos(culturas_plantadas[posicao])
-                        insumos_detalhados = calcular_insumos(areas[posicao], culturas_plantadas[posicao], insumos_desejados)
-                        insumos[posicao] = insumos_detalhados
-                    else:
-                        print("Escolha inválida.")
+                    atualizar_dados(posicao)
                 else:
                     print("Número da área inválido.")
             else:
@@ -236,6 +275,7 @@ def menu():
         else:
             print("Opção inválida!")
 
+
 # Listas para armazenar dados das culturas
 culturas_plantadas = []
 areas = []
@@ -246,4 +286,3 @@ numero_ruas = []
 
 # Início do menu principal
 menu()
-1
